@@ -20,11 +20,7 @@ function Start-SeEdgeDriver {
 
     )
 	
-	return (New-Object OpenQA.Selenium.Edge.EdgeDriver)
-	
-	<#
-	$Driver.UseChromium = $true;
-	
+		
     if ($AcceptInsecureCertificates) {
         Write-Verbose "AcceptInsecureCertificates capability set to: $($AcceptInsecureCertificates.IsPresent)"
         $Options.AddAdditionalCapability([OpenQA.Selenium.Remote.CapabilityType]::AcceptInsecureCertificates, $true, $true)
@@ -50,8 +46,7 @@ function Start-SeEdgeDriver {
 	if ($ProfilePath) {
         $ProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ProfilePath)
         Write-Verbose "Setting Profile directory: $ProfilePath"
-        #$Options.AddArgument("user-data-dir=$ProfilePath")
-        #$Options.AddArgument("profile-directory=Profile 1")		
+        $Options.AddArgument("user-data-dir=$ProfilePath")	
     }
 
     if ($PSBoundParameters.ContainsKey('LogLevel')) {
@@ -84,7 +79,7 @@ function Start-SeEdgeDriver {
     }
     #endregion
 
-    
+    $Driver = [OpenQA.Selenium.Edge.EdgeDriver]::New($Service, $options)
 	
     #region post driver checks and option checks If we have a version know to have problems with passing arguments, generate a warning if we tried to send any.
     if (-not $Driver) {
@@ -102,7 +97,8 @@ function Start-SeEdgeDriver {
                 "Select * From win32_process " +
                 "Where parentprocessid = $($service.ProcessId) " +
                 "And name = 'msedge.exe'")).commandline
-        $options.arguments | Where-Object { $browserCmdline -notlike "*$_*" } | ForEach-Object {
+
+        $options.arguments | Where-Object { $browserCmdline -notmatch [regex]::Escape(($_ -split "=")[0]) } | ForEach-Object {
             Write-Warning "Argument $_ was not passed to the Browser. This is a known issue with some web driver versions."
         }
     }
@@ -110,7 +106,7 @@ function Start-SeEdgeDriver {
     if ($PSBoundParameters.ContainsKey('Size')) { $Driver.Manage().Window.Size = $Size }
     if ($PSBoundParameters.ContainsKey('Position')) { $Driver.Manage().Window.Position = $Position }
 
-    #$Driver.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromMilliseconds($ImplicitWait * 1000)
+    $Driver.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromMilliseconds($ImplicitWait * 1000)
     if ($StartURL) { $Driver.Navigate().GoToUrl($StartURL) }
 
 
@@ -124,5 +120,4 @@ function Start-SeEdgeDriver {
     #endregion
 
     return  $Driver
-	#>
 }
