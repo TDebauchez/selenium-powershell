@@ -30,11 +30,6 @@ function Start-SeFirefoxDriver {
             $Options.setPreference("browser.download.folderList", 2);
             $Options.SetPreference("browser.download.dir", "$DefaultDownloadPath");
         }
-		
-		if ($ProfilePath) {
-			Write-Verbose "Setting Profile directory: $ProfilePath"
-			$Options.Profile = [OpenQA.Selenium.Firefox.FirefoxProfile]::new($ProfilePath,$false)
-		}
 
         if ($UserAgent) {
             Write-Verbose "Setting User Agent: $UserAgent"
@@ -60,6 +55,11 @@ function Start-SeFirefoxDriver {
             if ($WebDriverPath) { $ServiceParams.Add('WebDriverPath', $WebDriverPath) }
             $service = New-SeDriverService -Browser Firefox @ServiceParams
         }
+		
+		if ($ProfilePath) {
+			Write-Verbose "Setting Profile directory: $ProfilePath"
+			$Options.Profile = [OpenQA.Selenium.Firefox.FirefoxProfile]::new($ProfilePath)
+		}
 
 
         $Driver = [OpenQA.Selenium.Firefox.FirefoxDriver]::new($service, $Options)
