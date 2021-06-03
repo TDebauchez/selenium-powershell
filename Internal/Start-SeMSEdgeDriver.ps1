@@ -5,6 +5,7 @@ function Start-SeMSEdgeDriver {
         [string]$StartURL,
         [SeWindowState]$State,
         [System.IO.FileInfo]$DefaultDownloadPath,
+        [System.IO.FileInfo]$ProfilePath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait,
         [System.Drawing.Size]$Size,
@@ -26,6 +27,14 @@ function Start-SeMSEdgeDriver {
     }
     
     if ($PrivateBrowsing) { $options.UseInPrivateBrowsing = $true }
+	
+	
+	if ($ProfilePath) {
+		$ProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ProfilePath)
+		Write-Verbose "Setting Profile directory: $ProfilePath"
+		$Options.AddArgument("user-data-dir=$ProfilePath")
+	}
+	
     if ($StartURL) { $options.StartPage = $StartURL }
     #endregion
 

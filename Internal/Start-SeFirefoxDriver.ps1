@@ -4,6 +4,7 @@ function Start-SeFirefoxDriver {
         [string]$StartURL,
         [SeWindowState]$State,
         [System.IO.FileInfo]$DefaultDownloadPath,
+        [System.IO.FileInfo]$ProfilePath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait,
         [System.Drawing.Size]$Size,
@@ -29,6 +30,11 @@ function Start-SeFirefoxDriver {
             $Options.setPreference("browser.download.folderList", 2);
             $Options.SetPreference("browser.download.dir", "$DefaultDownloadPath");
         }
+		
+		if ($ProfilePath) {
+			Write-Verbose "Setting Profile directory: $ProfilePath"
+			$Options.Profile = [OpenQA.Selenium.Firefox.FirefoxProfile]::new($ProfilePath,$false)
+		}
 
         if ($UserAgent) {
             Write-Verbose "Setting User Agent: $UserAgent"

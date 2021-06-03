@@ -5,6 +5,7 @@ function Start-SeEdgeDriver {
         [string]$StartURL,
         [SeWindowState]$State,
         [System.IO.FileInfo]$DefaultDownloadPath,
+        [System.IO.FileInfo]$ProfilePath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait,
         [System.Drawing.Size]$Size,
@@ -18,7 +19,12 @@ function Start-SeEdgeDriver {
         [Switch]$AcceptInsecureCertificates
 
     )
-
+	
+	return (New-Object OpenQA.Selenium.Edge.EdgeDriver)
+	
+	<#
+	$Driver.UseChromium = $true;
+	
     if ($AcceptInsecureCertificates) {
         Write-Verbose "AcceptInsecureCertificates capability set to: $($AcceptInsecureCertificates.IsPresent)"
         $Options.AddAdditionalCapability([OpenQA.Selenium.Remote.CapabilityType]::AcceptInsecureCertificates, $true, $true)
@@ -39,6 +45,13 @@ function Start-SeEdgeDriver {
     elseif ($BinaryPath) {
         $Options.BinaryLocation = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($BinaryPath)
         Write-Verbose -Message "Will request $($Options.BinaryLocation) as the browser"
+    }
+	
+	if ($ProfilePath) {
+        $ProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ProfilePath)
+        Write-Verbose "Setting Profile directory: $ProfilePath"
+        #$Options.AddArgument("user-data-dir=$ProfilePath")
+        #$Options.AddArgument("profile-directory=Profile 1")		
     }
 
     if ($PSBoundParameters.ContainsKey('LogLevel')) {
@@ -63,20 +76,16 @@ function Start-SeEdgeDriver {
     #The command line args may now be --inprivate --headless but msedge driver V81 does not pass them
     if ($PrivateBrowsing) { $options.AddArguments('InPrivate') }
     if ($State -eq [SeWindowState]::Headless) { $options.AddArguments('headless') }
-    if ($ProfilePath) {
-        $ProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ProfilePath)
-        Write-Verbose "Setting Profile directory: $ProfilePath"
-        $options.AddArgument("user-data-dir=$ProfilePath")
-    }
+
     if ($DefaultDownloadPath) {
         $DefaultDownloadPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DefaultDownloadPath)
         Write-Verbose "Setting Default Download directory: $DefaultDownloadPath"
-        $Options.AddUserProfilePreference('download', @{'default_directory' = $DefaultDownloadPath; 'prompt_for_download' = $false; })
+        $options.AddUserProfilePreference('download', @{'default_directory' = $DefaultDownloadPath; 'prompt_for_download' = $false; })
     }
     #endregion
 
-    $Driver = [OpenQA.Selenium.Chrome.ChromeDriver]::new($service, $options)
-
+    
+	
     #region post driver checks and option checks If we have a version know to have problems with passing arguments, generate a warning if we tried to send any.
     if (-not $Driver) {
         Write-Warning "Web driver was not created"; return
@@ -97,11 +106,11 @@ function Start-SeEdgeDriver {
             Write-Warning "Argument $_ was not passed to the Browser. This is a known issue with some web driver versions."
         }
     }
-
+	
     if ($PSBoundParameters.ContainsKey('Size')) { $Driver.Manage().Window.Size = $Size }
     if ($PSBoundParameters.ContainsKey('Position')) { $Driver.Manage().Window.Position = $Position }
 
-    $Driver.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromMilliseconds($ImplicitWait * 1000)
+    #$Driver.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromMilliseconds($ImplicitWait * 1000)
     if ($StartURL) { $Driver.Navigate().GoToUrl($StartURL) }
 
 
@@ -111,8 +120,9 @@ function Start-SeEdgeDriver {
         { $_ -eq [SeWindowState]::Fullscreen } { $Driver.Manage().Window.FullScreen() }
     }
 
- 
+
     #endregion
 
     return  $Driver
+	#>
 }

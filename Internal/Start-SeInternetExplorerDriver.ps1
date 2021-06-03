@@ -3,6 +3,7 @@ function Start-SeInternetExplorerDriver {
         [string]$StartURL,
         [SeWindowState]$State,
         [System.IO.FileInfo]$DefaultDownloadPath,
+        [System.IO.FileInfo]$ProfilePath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait,
         [System.Drawing.Size]$Size,
@@ -18,6 +19,13 @@ function Start-SeInternetExplorerDriver {
   
     #region IE set-up options
     if ($state -eq [SeWindowState]::Headless -or $PrivateBrowsing) { Write-Warning 'The Internet explorer driver does not support headless or Inprivate operation; these switches are ignored' }
+
+
+	if ($ProfilePath) {
+		$ProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ProfilePath)
+		Write-Verbose "Setting Profile directory: $ProfilePath"
+		$Options.AddArgument("user-data-dir=$ProfilePath")
+	}
 
     $IgnoreProtectedModeSettings = Get-OptionsSwitchValue -Switches $Switches -Name  'IgnoreProtectedModeSettings'  
     if ($IgnoreProtectedModeSettings) {

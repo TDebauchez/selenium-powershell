@@ -29,4 +29,3 @@ function Switch-SeDriver {
 
     return $Driver
 }
-

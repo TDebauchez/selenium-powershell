@@ -4,6 +4,7 @@ function Start-SeChromeDriver {
         [string]$StartURL,
         [SeWindowState]$State,
         [System.IO.FileInfo]$DefaultDownloadPath,
+        [System.IO.FileInfo]$ProfilePath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait,
         [System.Drawing.Size]$Size,
