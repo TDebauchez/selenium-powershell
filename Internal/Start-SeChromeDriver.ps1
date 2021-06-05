@@ -3,30 +3,20 @@ function Start-SeChromeDriver {
     param(
         [string]$StartURL,
         [SeWindowState]$State,
+        [System.IO.FileInfo]$WebDriverPath = $env:ChromeWebDriver,
+        [System.IO.FileInfo]$BinaryPath,
         [System.IO.FileInfo]$DefaultDownloadPath,
         [System.IO.FileInfo]$ProfilePath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait,
         [System.Drawing.Size]$Size,
         [System.Drawing.Point]$Position,
-        $WebDriverPath = $env:ChromeWebDriver,
-        $BinaryPath,
         [OpenQA.Selenium.DriverService]$service,
         [OpenQA.Selenium.DriverOptions]$Options,
         [String[]]$Switches,
         [OpenQA.Selenium.LogLevel]$LogLevel,
-        $UserAgent,
+        [String]$UserAgent,
         [Switch]$AcceptInsecureCertificates
-        
-
-
-        #        [System.IO.FileInfo]$ProfilePath,
-        #        $BinaryPath,
-    
-        # "user-data-dir=$ProfilePath"
-
-
-    
     )
 
     process {
@@ -60,8 +50,13 @@ function Start-SeChromeDriver {
         }
 
         if ($ProfilePath) {
-            Write-Verbose "Setting Profile directory: $ProfilePath"
-            $Options.AddArgument("user-data-dir=$ProfilePath")
+            if(-not (Get-WmiObject Win32_Process -Filter "name = 'chrome.exe'" | Select-Object CommandLine | ? { $_ -match [regex]::Escape($ProfilePath) })){
+                $ProfilePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ProfilePath)
+                Write-Verbose "Setting Profile directory: $ProfilePath"
+                $Options.AddArgument("user-data-dir=$ProfilePath")	
+            } else {
+                Write-Warning -Message "Can't define profile directory ($ProfilePath) because $($Options.BrowserName) is already open";
+            }
         }
 
         if ($BinaryPath) {
