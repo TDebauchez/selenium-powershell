@@ -5,6 +5,7 @@ function Clear-SeAlert {
         $Action = 'Dismiss',
         [parameter(ParameterSetName = 'Alert', ValueFromPipeline = $true)]
         $Alert,
+        [int]$TimeOut = 10,
         [switch]$PassThru
     )
     Begin {
@@ -15,7 +16,7 @@ function Clear-SeAlert {
         if ($Driver) {
             try { 
                 $ImpTimeout = Disable-SeDriverImplicitTimeout -Driver $Driver
-                $WebDriverWait = [OpenQA.Selenium.Support.UI.WebDriverWait]::new($Driver, (New-TimeSpan -Seconds 10))
+                $WebDriverWait = [OpenQA.Selenium.Support.UI.WebDriverWait]::new($Driver, (New-TimeSpan -Seconds $TimeOut))
                 $Condition = [SeleniumExtras.WaitHelpers.ExpectedConditions]::AlertIsPresent()
                 $WebDriverWait.Until($Condition)
                 $Alert = $Driver.SwitchTo().alert() 
