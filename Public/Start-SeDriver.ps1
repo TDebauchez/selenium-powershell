@@ -16,13 +16,14 @@ function Start-SeDriver {
         [ArgumentCompleter( { [Enum]::GetNames([SeWindowState]) })]
         [ValidateScript( { $_ -in [Enum]::GetNames([SeWindowState]) })]
         [SeWindowState] $State = [SeWindowState]::Default,
-        [System.IO.FileInfo]$DefaultDownloadPath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait = 0.2,
         [System.Drawing.Size][SizeTransformAttribute()]$Size,
         [System.Drawing.Point][PointTransformAttribute()]$Position,
-        $WebDriverPath,
-        $BinaryPath,
+        [System.IO.FileInfo]$DefaultDownloadPath,
+        [System.IO.FileInfo]$WebDriverPath,
+        [System.IO.FileInfo]$BinaryPath,
+        [System.IO.FileInfo]$ProfilePath,
         [Parameter(ParameterSetName = 'DriverOptions', Mandatory = $false)]
         [OpenQA.Selenium.DriverService]$Service,
         [Parameter(ParameterSetName = 'DriverOptions', Mandatory = $true)]
@@ -30,7 +31,6 @@ function Start-SeDriver {
         [Parameter(ParameterSetName = 'Default')]
         [String[]]$Switches,
         [String[]]$Arguments,
-        $ProfilePath,
         [OpenQA.Selenium.LogLevel]$LogLevel,
         [ValidateNotNullOrEmpty()]
         $Name,

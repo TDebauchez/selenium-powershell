@@ -76,7 +76,7 @@ function Get-SeElement {
             'Default' { 
                 if ($Timeout) {
                     $WebDriverWait = [OpenQA.Selenium.Support.UI.WebDriverWait]::new($Driver, ([timespan]::FromMilliseconds($Timeout * 1000)))
-                    $Condition = [OpenQA.Selenium.Support.UI.ExpectedConditions]::PresenceOfAllElementsLocatedBy($ByCondition)
+                    $Condition = [SeleniumExtras.WaitHelpers.ExpectedConditions]::PresenceOfAllElementsLocatedBy($ByCondition)
                     $Output = $WebDriverWait.Until($Condition) | DisplayedFilter -All:$ShowAll
                 }
                 else {

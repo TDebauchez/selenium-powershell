@@ -3,13 +3,14 @@ function Start-SeFirefoxDriver {
     param(
         [string]$StartURL,
         [SeWindowState]$State,
+        [System.IO.FileInfo]$WebDriverPath = $env:GeckoWebDriver,
+        [System.IO.FileInfo]$BinaryPath,
         [System.IO.FileInfo]$DefaultDownloadPath,
+        [System.IO.FileInfo]$ProfilePath,
         [switch]$PrivateBrowsing,
         [Double]$ImplicitWait,
         [System.Drawing.Size]$Size,
         [System.Drawing.Point]$Position,
-        $WebDriverPath = $env:GeckoWebDriver,
-        $BinaryPath,
         [OpenQA.Selenium.DriverService]$service,
         [OpenQA.Selenium.DriverOptions]$Options,
         [String[]]$Switches,
@@ -54,6 +55,11 @@ function Start-SeFirefoxDriver {
             if ($WebDriverPath) { $ServiceParams.Add('WebDriverPath', $WebDriverPath) }
             $service = New-SeDriverService -Browser Firefox @ServiceParams
         }
+		
+		if ($ProfilePath) {
+			Write-Verbose "Setting Profile directory: $ProfilePath"
+			$Options.Profile = [OpenQA.Selenium.Firefox.FirefoxProfile]::new($ProfilePath)
+		}
 
 
         $Driver = [OpenQA.Selenium.Firefox.FirefoxDriver]::new($service, $Options)

@@ -23,7 +23,7 @@ function Wait-SeDriver {
             $SeCondition = [System.Func[OpenQA.Selenium.IWebDriver, Bool]]$Value
         }
         else {
-            $SeCondition = [OpenQA.Selenium.Support.UI.ExpectedConditions]::$Condition($Value)
+            $SeCondition = [SeleniumExtras.WaitHelpers.ExpectedConditions]::$Condition($Value)
         }
         $WebDriverWait = [OpenQA.Selenium.Support.UI.WebDriverWait]::new($Driver, ([timespan]::FromMilliseconds($Timeout * 1000)))
             
